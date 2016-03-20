@@ -27,7 +27,7 @@ public class PlayersCheck implements Runnable {
 	@Override
 	public void run() {
 		
-		int nbPlayers = this.plugin.getServer().getOnlinePlayers().length;
+		int nbPlayers = this.plugin.getServer().getOnlinePlayers().size();
 		if (nbPlayers == 0)
 			return;
 		
