@@ -5,8 +5,10 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>IOTracker</name>
   <description>Bukkit plugin, tracking player movement through WorldGuard regions</description>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
-    <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
         <directory>${project.basedir}/src/main/resources</directory>
