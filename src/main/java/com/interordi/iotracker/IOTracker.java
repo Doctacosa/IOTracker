@@ -82,9 +82,9 @@ public final class IOTracker extends JavaPlugin {
 	
 	/*
 	 * TODO
-	 * - obtenir la liste à jour des regions à chaque changement
-	 * 		un simple /iotracker reload ferait aussi l'affaire...
-	 * 		faire un refresh de la copie de PlayersCheck aussi
+	 * - obtain the updated list of regions on each load
+	 * 		a simple /iotracker reload would also do the trick...
+	 * 		also refresh the copy within PlayersCheck
 	 */
 
 }
