@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -98,39 +99,42 @@ public class Stats implements Runnable {
 
 		saving = true;
 
-		File statsFile = new File(this.statsPath);
-		FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
-		
 		Map< UUID, PlayerTracking > players = this.plugin.getPlayers();
 		
-		for (Map.Entry< UUID , PlayerTracking > entry : players.entrySet()) {
-			UUID uuid = entry.getKey();
-			PlayerTracking tracking = entry.getValue();
+		//Run on its own thread to avoid holding up the server
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			File statsFile = new File(this.statsPath);
+			FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 			
-			Map< String, Integer > visits = tracking.getVisits();
-			
-			for (Map.Entry< String , Integer > visitEntry : visits.entrySet()) {
-				String regionName = visitEntry.getKey();
-				Integer nbVisits = visitEntry.getValue();
+			for (Map.Entry< UUID , PlayerTracking > entry : players.entrySet()) {
+				UUID uuid = entry.getKey();
+				PlayerTracking tracking = entry.getValue();
 				
-				statsAccess.set("visits." + uuid + "." + regionName, nbVisits);
+				Map< String, Integer > visits = tracking.getVisits();
+				
+				for (Map.Entry< String , Integer > visitEntry : visits.entrySet()) {
+					String regionName = visitEntry.getKey();
+					Integer nbVisits = visitEntry.getValue();
+					
+					statsAccess.set("visits." + uuid + "." + regionName, nbVisits);
+				}
+				
+				Set< String > inRegions = tracking.getRegionsActive();
+				List< String > inRegionsTemp = new ArrayList< String >();
+				for (String region : inRegions) {
+					inRegionsTemp.add(region);
+				}
+				statsAccess.set("regionsactive." + uuid, inRegionsTemp);
 			}
 			
-			Set< String > inRegions = tracking.getRegionsActive();
-			List< String > inRegionsTemp = new ArrayList< String >();
-			for (String region : inRegions) {
-				inRegionsTemp.add(region);
+			try {
+				statsAccess.save(statsFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			statsAccess.set("regionsactive." + uuid, inRegionsTemp);
-		}
-		
-		try {
-			statsAccess.save(statsFile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		saving = false;
+			saving = false;
+		});
 	}
 }
