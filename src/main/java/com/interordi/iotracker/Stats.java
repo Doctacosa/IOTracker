@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Stats implements Runnable {
 	
 	IOTracker plugin;
+	boolean saving = false;
 	private String statsPath = "plugins/IOTracker/stats.yml";
 	
 	
@@ -91,6 +92,12 @@ public class Stats implements Runnable {
 	
 	
 	public void saveStats() {
+		//No need to save if we're already saving
+		if (saving)
+			return;
+
+		saving = true;
+
 		File statsFile = new File(this.statsPath);
 		FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 		
@@ -123,5 +130,7 @@ public class Stats implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		saving = false;
 	}
 }
