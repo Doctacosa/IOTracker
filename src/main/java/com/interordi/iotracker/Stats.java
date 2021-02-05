@@ -17,7 +17,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Stats implements Runnable {
 	
 	IOTracker plugin;
-	boolean saving = false;
+	private boolean saving = false;
 	private String statsPath = "plugins/IOTracker/stats.yml";
 	
 	
