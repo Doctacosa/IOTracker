@@ -27,8 +27,9 @@ public class Regions implements Runnable {
     Map< String, Region > regions;
     
 
-	public Regions(IOTracker plugin) {
+	public Regions(IOTracker plugin, String worldGuardPath) {
 		this.plugin = plugin;
+		this.worldGuardPath = worldGuardPath;
 	}
 	
 	
@@ -41,7 +42,7 @@ public class Regions implements Runnable {
 	//Get the list of regions from the config file
 	public void readAll() {
 		if (regionsFile == null) {
-			regionsFile = new File(this.worldGuardPath + "regions.yml");
+			regionsFile = new File(this.worldGuardPath);
 		}
 		this.customConfig = YamlConfiguration.loadConfiguration(regionsFile);
 		

@@ -1,5 +1,6 @@
 package com.interordi.iotracker;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -15,13 +16,31 @@ public final class IOTracker extends JavaPlugin {
 	
 
 	public void onEnable() {
+
+		//Always ensure we've got a copy of the config in place (does not overwrite existing)
+		this.saveDefaultConfig();
+
+		//Get the location of the WorldGuard file
+		String worldGuardPath = this.getConfig().getString("regions-file");
+
+		if (worldGuardPath == null) {
+			getLogger().info("No regions file defined, no checks will be done.");
+			return;
+		}
+
+		File source = new File(worldGuardPath);
+		if (!source.exists()) {
+			getLogger().info("Regions file not found, no checks will be done.");
+			return;
+		}
+
+
 		new LoginListener(this);
-		//new ChatListener(this);
 		
 		getLogger().info("IOTracker enabled");
 		
 		//Get the list of available regions
-		this.regionsManager = new Regions(this);
+		this.regionsManager = new Regions(this, worldGuardPath);
 		this.regionsManager.readAll();
 		
 		this.playersCheck = new PlayersCheck(this);
