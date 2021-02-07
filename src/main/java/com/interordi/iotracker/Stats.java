@@ -34,6 +34,16 @@ public class Stats implements Runnable {
 	
 	public void loadStats() {
 		File statsFile = new File(this.statsPath);
+
+		try {
+			if (!statsFile.exists())
+				statsFile.createNewFile();
+		} catch (IOException e) {
+			System.err.println("Failed to load the stats file");
+			e.printStackTrace();
+			return;
+		}
+
 		FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 		
 		ConfigurationSection visitsData = statsAccess.getConfigurationSection("visits");
