@@ -3,6 +3,8 @@ package com.interordi.iotracker;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.HashMap;
 
 import org.bukkit.Location;
@@ -74,18 +76,58 @@ public class Regions implements Runnable {
 		
 		
 		for (String name : cs) {
-			//Check against missing data
-			String maxStr = regionsConfig.getString(name + ".max");
-			if (maxStr == null || maxStr.isEmpty())
-				continue;
+			double x1, y1, z1, x2, y2, z2;
 			
-			//Store this region
-			double x1 = regionsConfig.getDouble(name + ".min.x");
-			double y1 = regionsConfig.getDouble(name + ".min.y");
-			double z1 = regionsConfig.getDouble(name + ".min.z");
-			double x2 = regionsConfig.getDouble(name + ".max.x");
-			double y2 = regionsConfig.getDouble(name + ".max.y");
-			double z2 = regionsConfig.getDouble(name + ".max.z");
+			//Cuboid selection
+			if (regionsConfig.getString(name + ".type").equals("cuboid")) {
+				x1 = regionsConfig.getDouble(name + ".min.x");
+				y1 = regionsConfig.getDouble(name + ".min.y");
+				z1 = regionsConfig.getDouble(name + ".min.z");
+				x2 = regionsConfig.getDouble(name + ".max.x");
+				y2 = regionsConfig.getDouble(name + ".max.y");
+				z2 = regionsConfig.getDouble(name + ".max.z");
+
+			} else if (regionsConfig.getString(name + ".type").equals("poly2d")) {
+				y1 = regionsConfig.getDouble(name + ".min-y");
+				y2 = regionsConfig.getDouble(name + ".max-y");
+				x1 = Integer.MAX_VALUE;
+				x2 = Integer.MIN_VALUE;
+				z1 = Integer.MAX_VALUE;
+				z2 = Integer.MIN_VALUE;
+
+				String pointsRaw = regionsConfig.getString(name + ".points");
+				Pattern r = Pattern.compile("\\{(.*?)\\}");
+				Matcher m = r.matcher(pointsRaw);
+
+				while (m.find()) {
+					String point = pointsRaw.substring(m.start(), m.end());
+
+					/*
+					//Regex doesn't work, don't know why, screw that thing
+					Pattern r2 = Pattern.compile("x=([\\-0-9]*), z=([\\-0-9]*)");
+					Matcher m2 = r2.matcher(point);
+					m2.matches();
+
+					xp = Integer.parseInt(m2.group(0));
+					zp = Integer.parseInt(m2.group(1));
+					*/
+
+					int xp = Integer.parseInt(point.substring(point.indexOf("x=") + 2, point.indexOf(", ")));
+					int zp = Integer.parseInt(point.substring(point.indexOf("z=") + 2, point.indexOf("}")));
+
+					if (xp < x1)
+						x1 = xp;
+					if (xp > x2)
+						x2 = xp;
+					if (zp < z1)
+						z1 = zp;
+					if (zp > z2)
+						z2 = zp;
+				}
+
+			} else {
+				continue;
+			}
 			
 			//Add this region to the list of available ones
 			this.regions.put(
@@ -96,9 +138,9 @@ public class Regions implements Runnable {
 					new Location(null, x2, y2, z2)
 				)
 			);
-			
+
 			//Debug output
-			//System.out.println(min.getBlockX() + "," + min.getBlockY() + "," + min.getBlockZ() + " --- " + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ());
+			//System.out.println(name + ": " + x1 + "," + y1 + "," + z1 + " --- " + x2 + "," + y2 + "," + z2);
 		}
 	}
 	
