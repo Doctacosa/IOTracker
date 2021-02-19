@@ -5,14 +5,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import net.md_5.bungee.api.ChatColor;
 
 public final class IOTracker extends JavaPlugin {
 	
 	private Regions regionsManager;
 	private PlayersCheck playersCheck;
 	private Stats stats;
+
+	private String worldGuardPath = "";
+	public String[] worlds;
 	
 
 	public void onEnable() {
@@ -21,12 +28,16 @@ public final class IOTracker extends JavaPlugin {
 		this.saveDefaultConfig();
 
 		//Get the location of the WorldGuard file
-		String worldGuardPath = this.getConfig().getString("regions-file");
+		worldGuardPath = this.getConfig().getString("regions-file");
 
 		if (worldGuardPath == null) {
 			getLogger().info("No regions file defined, no checks will be done.");
 			return;
 		}
+
+		String worldsTemp = this.getConfig().getString("worlds");
+		worlds = worldsTemp.split(",");
+
 
 		File source = new File(worldGuardPath);
 		if (!source.exists()) {

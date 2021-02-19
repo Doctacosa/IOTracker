@@ -65,8 +65,15 @@ public class PlayersCheck implements Runnable {
 			//Update position
 			tracks.setLocation(newLocation);
 			
-			//If world isn't 'world'...
-			if (!newLocation.getWorld().getName().equals("world"))
+			//If the player isn't in a tracked world, exit
+			boolean found = false;
+			for (String world : plugin.worlds) {
+				if (world.equals(newLocation.getWorld().getName())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
 				continue;
 			
 			Set< String > regionsActiveBefore = tracks.getRegionsActive();
