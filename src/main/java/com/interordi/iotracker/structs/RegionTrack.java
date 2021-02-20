@@ -4,9 +4,9 @@ import org.bukkit.Location;
 
 public class RegionTrack {
 
-	String name;
-	Location min;
-	Location max;
+	private String name;
+	private Location min;
+	private Location max;
 	
 	
 	public RegionTrack(String name, Location min, Location max) {

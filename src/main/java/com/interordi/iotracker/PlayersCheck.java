@@ -169,4 +169,23 @@ public class PlayersCheck implements Runnable {
 	public Map< UUID, PlayerTracking > getPlayers() {
 		return this.players;
 	}
+
+
+	//Get the amount of players in each specified region
+	public Set< UUID > getPlayersInRegion(String region) {
+
+		Set< UUID > inRegion = new HashSet< UUID >();
+
+		for (UUID uuid : players.keySet()) {
+			for (String regionCheck : players.get(uuid).getRegionsActive()) {
+				if (region.equalsIgnoreCase(regionCheck)) {
+					inRegion.add(uuid);
+					break;
+				}
+			}
+		}
+
+
+		return inRegion;
+	}
 }

@@ -10,8 +10,18 @@ This plugin doesn't have a direct dependency on WorldGuard: it reads the regions
 ## Configuration
 
 `regions-file`: The location of the WorldGuard regions.yml file to use, relative to the server's location
+`worlds`: The worlds to check for activity; comma-separated list.
+`regions-query`: Which regions should be included in the `/anyone` command. The format goes as such
+`  region-id:`
+`    display: Display name`
+`    warning: [none|empty|busy|]`
 
 
-## Commands, permissions
+## Commands
 
-None
+`/anyone`: Check the amount of players present in each defined region.
+
+
+## Permissions
+
+`iotracker.anyone`: Usage of the /anyone command

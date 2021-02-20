@@ -1,2 +1,6 @@
 regions-file: plugins/WorldGuard/worlds/world/regions.yml
 worlds: world
+regions-query:
+  spawn:
+    display: Spawn area
+    warning: none
