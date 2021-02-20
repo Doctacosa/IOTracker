@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.interordi.iotracker.structs.RegionTrack;
+
 import java.util.HashMap;
 
 import org.bukkit.Location;
@@ -26,7 +29,7 @@ public class Regions implements Runnable {
     private File regionsFile = null;
     
     //List of available regions
-    Map< String, Region > regions;
+    Map< String, RegionTrack > regions;
     
 
 	public Regions(IOTracker plugin, String worldGuardPath) {
@@ -52,7 +55,7 @@ public class Regions implements Runnable {
 		if (regionsConfig == null)
 			return;	//No regions found, exit
 		
-		regions = new HashMap< String, Region >();
+		regions = new HashMap< String, RegionTrack >();
 		
 		/*
 		Map<String, Object> regions = regionsConfig.getValues(false);
@@ -132,7 +135,7 @@ public class Regions implements Runnable {
 			//Add this region to the list of available ones
 			this.regions.put(
 				name,
-				new Region(
+				new RegionTrack(
 					name,
 					new Location(null, x1, y1, z1),
 					new Location(null, x2, y2, z2)
@@ -179,7 +182,7 @@ public class Regions implements Runnable {
 	}
 	
 	
-	public Map< String, Region > getRegions() {
+	public Map< String, RegionTrack > getRegions() {
 		return this.regions;
 	}
 }

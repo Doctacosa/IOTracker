@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.interordi.iotracker.structs.RegionTrack;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -90,7 +92,7 @@ public final class IOTracker extends JavaPlugin {
 	}
 	
 	
-	public Map< String, Region > getRegions() {
+	public Map< String, RegionTrack > getRegions() {
 		return this.regionsManager.getRegions();
 	}
 	

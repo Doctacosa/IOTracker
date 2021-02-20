@@ -1,32 +1,32 @@
-package com.interordi.iotracker;
+package com.interordi.iotracker.structs;
 
 import org.bukkit.Location;
 
-public class Region {
+public class RegionTrack {
 
 	String name;
 	Location min;
 	Location max;
 	
 	
-	Region(String name, Location min, Location max) {
+	public RegionTrack(String name, Location min, Location max) {
 		this.name = name;
 		this.min = min;
 		this.max = max;
 	}
 	
 	
-	String getName() {
+	public String getName() {
 		return this.name;
 	}
 	
 	
-	Location getMin() {
+	public Location getMin() {
 		return this.min;
 	}
 	
 	
-	Location getMax() {
+	public Location getMax() {
 		return this.max;
 	}
 }

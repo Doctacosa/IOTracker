@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.interordi.iotracker.structs.RegionTrack;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -15,7 +17,7 @@ public class PlayersCheck implements Runnable {
 
 	private IOTracker plugin;
 	private Map< UUID, PlayerTracking > players;
-	private Map< String, Region > regions;
+	private Map< String, RegionTrack > regions;
 	
 	
 	public PlayersCheck(IOTracker ioTracker) {
@@ -82,10 +84,10 @@ public class PlayersCheck implements Runnable {
 			//this.plugin.getLogger().info("Nb regions: " + regions.size());
 			
 			//Check regions
-			for (Map.Entry< String, Region > entry : regions.entrySet()) {
+			for (Map.Entry< String, RegionTrack > entry : regions.entrySet()) {
 				
 				String regionName = entry.getKey();
-				Region regionData = entry.getValue();
+				RegionTrack regionData = entry.getValue();
 				Location min = regionData.getMin();
 				Location max = regionData.getMax();
 				
