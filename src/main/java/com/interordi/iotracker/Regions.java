@@ -23,7 +23,7 @@ public class Regions implements Runnable {
 	*/
 	
 	private IOTracker plugin;
-	private String worldGuardPath = "plugins/WorldGuard/worlds/world/";
+	private String worldGuardPath = "plugins/WorldGuard/worlds/world/regions.yml";
 	
     private FileConfiguration customConfig = null;
     private File regionsFile = null;
