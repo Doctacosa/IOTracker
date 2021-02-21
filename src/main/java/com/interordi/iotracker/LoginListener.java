@@ -15,10 +15,8 @@ public class LoginListener implements Listener {
 	}
 	
 	
-	@EventHandler	//Annotation - EventPriority.NORMAL by default
+	@EventHandler
 	public void onPlayerLogin(PlayerJoinEvent event) {
-		//event.getPlayer().sendMessage("Hi " + event.getPlayer().getDisplayName() + "!");
-		//plugin.getLogger().info(event.getPlayer().getDisplayName() + " logged in");
 		this.plugin.addPlayer(event.getPlayer());
 	}
 	

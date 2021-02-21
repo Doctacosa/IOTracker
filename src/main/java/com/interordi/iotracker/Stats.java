@@ -64,12 +64,9 @@ public class Stats implements Runnable {
 			//Loop on each visit for this player
 			for (String regionName : rs) {
 				Integer nbVisits = playerData.getInt(regionName);
-				//this.plugin.getLogger().info(">>> " + playerName + " - " + regionName + " - " + nbVisits);
 				this.plugin.visitRegion(uuid, regionName, nbVisits);
 			}
 		}
-		
-		//TODO: Load which players are within which regions
 	}
 	
 	
@@ -86,7 +83,6 @@ public class Stats implements Runnable {
 		//Loop on each visit for this player
 		for (String regionName : rs) {
 			Integer nbVisits = playerData.getInt(regionName);
-			//this.plugin.getLogger().info(">>> " + playerName + " - " + regionName + " - " + nbVisits);
 			this.plugin.visitRegion(uuid, regionName, nbVisits);
 		}
 		

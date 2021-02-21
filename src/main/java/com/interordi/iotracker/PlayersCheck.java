@@ -41,8 +41,6 @@ public class PlayersCheck implements Runnable {
 		for (Player oPlayer : Bukkit.getOnlinePlayers()) {
 			UUID playerUuid = oPlayer.getUniqueId();
 			
-			//this.plugin.getLogger().info("Check player " + playerName);
-			
 			//If the player isn't found...
 			if (!this.players.containsKey(playerUuid)) {
 				this.plugin.getLogger().info("Player not found!");
@@ -78,8 +76,6 @@ public class PlayersCheck implements Runnable {
 			Set< String > regionsActiveBefore = tracks.getRegionsActive();
 			Set< String > regionsToClear = new HashSet< String >(regionsActiveBefore);
 			
-			//this.plugin.getLogger().info("Nb regions: " + regions.size());
-			
 			//Check regions
 			for (Map.Entry< String, RegionTrack > entry : regions.entrySet()) {
 				
@@ -97,12 +93,10 @@ public class PlayersCheck implements Runnable {
 					
 					//In the region already, ignore
 					if (regionsActiveBefore.contains(regionName)) {
-						//this.plugin.getLogger().info(playerName + " still in region " + regionName);
 						continue;
 					}
 					
 					//Not in this region before, now active: add him
-					//this.plugin.getLogger().info(playerName + " entering region " + regionName);
 					tracks.addRegion(regionName);
 					tracks.visitRegion(regionName);
 				}
@@ -112,7 +106,6 @@ public class PlayersCheck implements Runnable {
 			Iterator< String > it = regionsToClear.iterator();
 			while (it.hasNext()) {
 				String regionName = it.next();
-				//this.plugin.getLogger().info(playerName + " leaving region " + regionName);
 				tracks.removeRegion(regionName);
 			}
 			

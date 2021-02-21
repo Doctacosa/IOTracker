@@ -17,11 +17,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Regions implements Runnable {
 
-	/*
-	//TODO: Catch the creation of new regions
-	 		Maybe using a check on the file used by WorldGuard
-	*/
-	
 	private IOTracker plugin;
 	private String worldGuardPath = "plugins/WorldGuard/worlds/world/regions.yml";
 	
