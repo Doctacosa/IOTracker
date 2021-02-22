@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.interordi.iotracker.structs.RegionQuery;
 import com.interordi.iotracker.structs.RegionTrack;
 
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -149,14 +150,17 @@ public final class IOTracker extends JavaPlugin {
 
 		
 	public void addPlayer(Player player) {
-		this.playersCheck.addPlayer(player);
-		this.stats.loadPlayer(player.getUniqueId());
+		final UUID uuid = player.getUniqueId();
+		final Location loc = player.getLocation();
+		
+		playersCheck.addPlayer(uuid, loc);
+		stats.loadPlayer(uuid);
 	}
 	
 	
 	public void removePlayer(Player player) {
 		this.stats.saveStats();
-		this.playersCheck.removePlayer(player);
+		this.playersCheck.removePlayer(player.getUniqueId());
 	}
 	
 	

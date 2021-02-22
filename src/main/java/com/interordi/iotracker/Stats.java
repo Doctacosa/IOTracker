@@ -71,30 +71,36 @@ public class Stats implements Runnable {
 	
 	
 	public void loadPlayer(UUID uuid) {
-		File statsFile = new File(this.statsPath);
-		FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
-		
-		ConfigurationSection playerData = statsAccess.getConfigurationSection("visits." + uuid);
-		if (playerData == null)
-			return;	//No player found, exit
-		
-		Set< String > rs = playerData.getKeys(false);
-		
-		//Loop on each visit for this player
-		for (String regionName : rs) {
-			Integer nbVisits = playerData.getInt(regionName);
-			this.plugin.visitRegion(uuid, regionName, nbVisits);
-		}
-		
-		List< String > inRegionsTemp = statsAccess.getStringList("regionsactive." + uuid);
-		
-		if (inRegionsTemp != null) {
-			Set< String > inRegions = new HashSet< String >();
-			for (int i = 0; i < inRegionsTemp.size(); i++) {
-				inRegions.add(inRegionsTemp.get(i));
+		//Do in a separate thread, player loading with large stats files is costly
+		Bukkit.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
+			@Override
+			public void run() {
+				File statsFile = new File(statsPath);
+				FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
+				
+				ConfigurationSection playerData = statsAccess.getConfigurationSection("visits." + uuid);
+				if (playerData == null)
+					return;	//No player found, exit
+				
+				Set< String > rs = playerData.getKeys(false);
+				
+				//Loop on each visit for this player
+				for (String regionName : rs) {
+					Integer nbVisits = playerData.getInt(regionName);
+					plugin.visitRegion(uuid, regionName, nbVisits);
+				}
+				
+				List< String > inRegionsTemp = statsAccess.getStringList("regionsactive." + uuid);
+				
+				if (inRegionsTemp != null) {
+					Set< String > inRegions = new HashSet< String >();
+					for (int i = 0; i < inRegionsTemp.size(); i++) {
+						inRegions.add(inRegionsTemp.get(i));
+					}
+					plugin.setRegionsActive(uuid, inRegions);
+				}
 			}
-			this.plugin.setRegionsActive(uuid, inRegions);
-		}
+		});
 	}
 	
 	

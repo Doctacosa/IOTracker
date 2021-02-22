@@ -122,20 +122,19 @@ public class PlayersCheck implements Runnable {
 	
 	
 	
-	public void addPlayer(Player player) {
-		UUID uuid = player.getUniqueId();
-		if (this.players.containsKey(player.getUniqueId()))	return;
+	public void addPlayer(UUID uuid, Location loc) {
+		if (this.players.containsKey(uuid))
+			return;
 		
-		PlayerTracking tracks = new PlayerTracking(uuid, player.getLocation());
+		PlayerTracking tracks = new PlayerTracking(uuid, loc);
 		this.players.put(uuid, tracks);
 	}
 	
 	
-	public void removePlayer(Player player) {
-		UUID uuid = player.getUniqueId();
-		if (!this.players.containsKey(uuid))	return;
+	public void removePlayer(UUID uuid) {
+		if (!this.players.containsKey(uuid))
+			return;
 		
-		//TODO: Save player's data?
 		this.players.remove(uuid);
 	}
 	
