@@ -3,6 +3,7 @@ package com.interordi.iotracker;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -117,13 +118,17 @@ public class Stats implements Runnable {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			File statsFile = new File(this.statsPath);
 			FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
+
+			Map< UUID , PlayerTracking > playersCopy = new HashMap< UUID, PlayerTracking >();
+			playersCopy.putAll(players);
 			
-			for (Map.Entry< UUID , PlayerTracking > entry : players.entrySet()) {
+			for (Map.Entry< UUID , PlayerTracking > entry : playersCopy.entrySet()) {
 				UUID uuid = entry.getKey();
 				PlayerTracking tracking = entry.getValue();
 				
-				Map< String, Integer > visits = tracking.getVisits();
-				
+				Map< String, Integer > visits = new HashMap< String, Integer>();
+				visits.putAll(tracking.getVisits());
+
 				for (Map.Entry< String , Integer > visitEntry : visits.entrySet()) {
 					String regionName = visitEntry.getKey();
 					Integer nbVisits = visitEntry.getValue();
