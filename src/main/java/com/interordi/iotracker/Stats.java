@@ -113,15 +113,14 @@ public class Stats implements Runnable {
 		saving = true;
 
 		Map< UUID, PlayerTracking > players = this.plugin.getPlayers();
-		
+		Map< UUID , PlayerTracking > playersCopy = new HashMap< UUID, PlayerTracking >();
+		playersCopy.putAll(players);
+	
 		//Run on its own thread to avoid holding up the server
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			File statsFile = new File(this.statsPath);
 			FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 
-			Map< UUID , PlayerTracking > playersCopy = new HashMap< UUID, PlayerTracking >();
-			playersCopy.putAll(players);
-			
 			for (Map.Entry< UUID , PlayerTracking > entry : playersCopy.entrySet()) {
 				UUID uuid = entry.getKey();
 				PlayerTracking tracking = entry.getValue();
