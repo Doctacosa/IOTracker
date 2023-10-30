@@ -6,9 +6,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.interordi.iotracker.structs.RegionQuery;
 import com.interordi.iotracker.structs.RegionTrack;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -25,11 +28,13 @@ public class Regions implements Runnable {
     
     //List of available regions
     Map< String, RegionTrack > regions;
+	private List< RegionQuery > regionsQuery;
     
 
 	public Regions(IOTracker plugin, String worldGuardPath) {
 		this.plugin = plugin;
 		this.worldGuardPath = worldGuardPath;
+		this.regionsQuery = new LinkedList< RegionQuery >();
 	}
 	
 	
@@ -179,5 +184,17 @@ public class Regions implements Runnable {
 	
 	public Map< String, RegionTrack > getRegions() {
 		return this.regions;
+	}
+
+
+	//Add a region to those to monitor
+	public void addRegionsQuery(RegionQuery region) {
+		this.regionsQuery.add(region);
+	}
+
+
+	//Get the list of regions to be queried
+	public List< RegionQuery > getRegionsQuery() {
+		return this.regionsQuery;
 	}
 }

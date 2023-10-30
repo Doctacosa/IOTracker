@@ -1,8 +1,6 @@
 package com.interordi.iotracker;
 
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -27,12 +25,9 @@ public final class IOTracker extends JavaPlugin {
 
 	private String worldGuardPath = "";
 	public String[] worlds;
-	private List< RegionQuery > regionsQuery;
 	
 
 	public void onEnable() {
-
-		regionsQuery = new LinkedList< RegionQuery >();
 
 		//Always ensure we've got a copy of the config in place (does not overwrite existing)
 		this.saveDefaultConfig();
@@ -45,25 +40,6 @@ public final class IOTracker extends JavaPlugin {
 			return;
 		}
 
-		String worldsTemp = this.getConfig().getString("worlds");
-		worlds = worldsTemp.split(",");
-
-
-		ConfigurationSection regionsCS = this.getConfig().getConfigurationSection("regions-query");
-		if (regionsCS != null) {
-			Set< String > cs = regionsCS.getKeys(false);
-			if (cs != null) {
-				for (String name : cs) {
-					
-					String display = regionsCS.getString(name + ".display");
-					String warning = regionsCS.getString(name + ".warning");
-
-					regionsQuery.add(new RegionQuery(name, display, warning));
-				}
-			}
-		}
-
-
 		File source = new File(worldGuardPath);
 		if (!source.exists()) {
 			getLogger().info("Regions file not found, no checks will be done.");
@@ -71,9 +47,28 @@ public final class IOTracker extends JavaPlugin {
 		}
 
 
-		new LoginListener(this);
+		worlds = this.getConfig().getString("worlds", "").split(",");
+
+
+		ConfigurationSection regionsCS = this.getConfig().getConfigurationSection("regions-query");
+		if (regionsCS != null) {
+			
+			Set< String > cs = regionsCS.getKeys(false);
+			if (cs != null) {
+				for (String name : cs) {
+					this.regionsManager.addRegionsQuery(
+						new RegionQuery(
+							name,
+							regionsCS.getString(name + ".display"),
+							regionsCS.getString(name + ".warning")
+						)
+					);
+				}
+			}
+		}
 		
-		getLogger().info("IOTracker enabled");
+
+		new LoginListener(this);
 		
 		//Get the list of available regions
 		this.regionsManager = new Regions(this, worldGuardPath);
@@ -95,6 +90,8 @@ public final class IOTracker extends JavaPlugin {
 		//Update the list of regions every hour
 		//FIXME: Regions don't actually get updated
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, regionsManager, 30*60*20L, 60*60*20L);
+
+		getLogger().info("IOTracker enabled");
 	}
 	
 	
@@ -114,8 +111,13 @@ public final class IOTracker extends JavaPlugin {
 				return true;
 			}
 
+			if (this.regionsManager == null || this.regionsManager.getRegionsQuery().isEmpty()) {
+				sender.sendMessage(ChatColor.RED + "No regions are available.");
+				return true;
+			}
+
 			sender.sendMessage(ChatColor.BOLD + "Player activity by area:");
-			for (RegionQuery region : regionsQuery) {
+			for (RegionQuery region : this.regionsManager.getRegionsQuery()) {
 				int nbPlayers = this.playersCheck.getPlayersInRegion(region.id).size();
 				
 				ChatColor status = ChatColor.GRAY;
