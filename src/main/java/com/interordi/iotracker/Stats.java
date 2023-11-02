@@ -15,6 +15,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.interordi.iotracker.structs.RegionTrack;
+
 public class Stats implements Runnable {
 	
 	IOTracker plugin;
@@ -50,22 +52,27 @@ public class Stats implements Runnable {
 		ConfigurationSection visitsData = statsAccess.getConfigurationSection("visits");
 		if (visitsData == null)
 			return;	//Nothing yet, exit
-		Set< String > cs = visitsData.getKeys(false);
-		if (cs == null)
+		Set< String > players = visitsData.getKeys(false);
+		if (players == null)
 			return;	//No players found, exit
 		
 		
 		//Loop on each player
-		for (String temp : cs) {
-			UUID uuid = UUID.fromString(temp);
-			ConfigurationSection playerData = visitsData.getConfigurationSection(uuid.toString());
-			
-			Set< String > rs = playerData.getKeys(false);
-			
-			//Loop on each visit for this player
-			for (String regionName : rs) {
-				Integer nbVisits = playerData.getInt(regionName);
-				this.plugin.visitRegion(uuid, regionName, nbVisits);
+		for (String player : players) {
+			Set< String > worlds = visitsData.getConfigurationSection(player).getKeys(false);
+			if (worlds != null && !worlds.isEmpty()) {
+				for (String world: worlds) {
+					UUID uuid = UUID.fromString(player);
+					ConfigurationSection playerData = visitsData.getConfigurationSection(uuid.toString());
+					
+					Set< String > rs = playerData.getKeys(false);
+					
+					//Loop on each visit for this player
+					for (String regionName : rs) {
+						Integer nbVisits = playerData.getInt(regionName);
+						this.plugin.visitRegion(uuid, world, regionName, nbVisits);
+					}
+				}
 			}
 		}
 	}
@@ -83,23 +90,39 @@ public class Stats implements Runnable {
 				if (playerData == null)
 					return;	//No player found, exit
 				
-				Set< String > rs = playerData.getKeys(false);
-				
-				//Loop on each visit for this player
-				for (String regionName : rs) {
-					Integer nbVisits = playerData.getInt(regionName);
-					plugin.visitRegion(uuid, regionName, nbVisits);
-				}
-				
-				List< String > inRegionsTemp = statsAccess.getStringList("regionsactive." + uuid);
-				
-				if (inRegionsTemp != null) {
-					Set< String > inRegions = new HashSet< String >();
-					for (int i = 0; i < inRegionsTemp.size(); i++) {
-						inRegions.add(inRegionsTemp.get(i));
+
+				Set< String > worlds = playerData.getKeys(false);
+							
+				for (String world : worlds) {
+
+					ConfigurationSection worldData = playerData.getConfigurationSection(world);
+					if (worldData == null)
+						return;	//Shouldn't happen, but...
+
+					Set< String > regions = worldData.getKeys(false);
+
+					//Loop on each visit for this player
+					for (String regionName : regions) {
+						Integer nbVisits = playerData.getInt(regionName);
+						plugin.visitRegion(uuid, world, regionName, nbVisits);
 					}
-					plugin.setRegionsActive(uuid, inRegions);
 				}
+				
+
+				List< String > worldsTemp = statsAccess.getStringList("regionsactive." + uuid);
+				if (worldsTemp != null) {
+					for (String world : worldsTemp) {
+						List< String > inRegionsTemp = statsAccess.getStringList("regionsactive." + uuid + "." + world);
+
+						Set< RegionTrack > inRegions = new HashSet< RegionTrack >();
+						for (int i = 0; i < inRegionsTemp.size(); i++) {
+							RegionTrack rt = new RegionTrack(world, inRegionsTemp.get(i));
+							inRegions.add(rt);
+						}
+						plugin.setRegionsActive(uuid, inRegions);
+					}
+				}
+
 			}
 		});
 	}
@@ -124,23 +147,24 @@ public class Stats implements Runnable {
 			for (Map.Entry< UUID , PlayerTracking > entry : playersCopy.entrySet()) {
 				UUID uuid = entry.getKey();
 				PlayerTracking tracking = entry.getValue();
+				String world = tracking.getLocation().getWorld().getName();
 				
-				Map< String, Integer > visits = new HashMap< String, Integer>();
+				Map< RegionTrack, Integer > visits = new HashMap< RegionTrack, Integer>();
 				visits.putAll(tracking.getVisits());
 
-				for (Map.Entry< String , Integer > visitEntry : visits.entrySet()) {
-					String regionName = visitEntry.getKey();
+				for (Map.Entry< RegionTrack , Integer > visitEntry : visits.entrySet()) {
+					String regionName = visitEntry.getKey().getName();
 					Integer nbVisits = visitEntry.getValue();
-					
-					statsAccess.set("visits." + uuid + "." + regionName, nbVisits);
+
+					statsAccess.set("visits." + world + "." + uuid + "." + regionName, nbVisits);
 				}
 				
-				Set< String > inRegions = tracking.getRegionsActive();
-				List< String > inRegionsTemp = new ArrayList< String >();
-				for (String region : inRegions) {
+				Set< RegionTrack > inRegions = tracking.getRegionsActive();
+				List< RegionTrack > inRegionsTemp = new ArrayList< RegionTrack >();
+				for (RegionTrack region : inRegions) {
 					inRegionsTemp.add(region);
 				}
-				statsAccess.set("regionsactive." + uuid, inRegionsTemp);
+				statsAccess.set("regionsactive." + world + "." + uuid, inRegionsTemp);
 			}
 			
 			try {

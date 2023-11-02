@@ -4,15 +4,28 @@ import org.bukkit.Location;
 
 public class RegionTrack {
 
-	private String name;
-	private Location min;
-	private Location max;
+	private String name = null;
+	private String world = null;
+	private Location min = null;
+	private Location max = null;
 	
 	
-	public RegionTrack(String name, Location min, Location max) {
+	public RegionTrack(String world, String name) {
+		this.world = world;
+		this.name = name;
+	}
+	
+	
+	public RegionTrack(String world, String name, Location min, Location max) {
+		this.world = world;
 		this.name = name;
 		this.min = min;
 		this.max = max;
+	}
+	
+	
+	public String getWorld() {
+		return this.world;
 	}
 	
 	

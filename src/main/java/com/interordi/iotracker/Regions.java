@@ -46,6 +46,17 @@ public class Regions implements Runnable {
 	
 	//Get the list of regions from the config file
 	public void readAll() {
+		//Get the world name out of the filename
+		String world = null;
+		Pattern r = Pattern.compile("/worlds/(.*?)/regions.yml");
+		Matcher m = r.matcher(this.worldGuardPath);
+		while (m.find()) {
+			world = m.group(0);
+		}
+
+		if (world == null || world.isEmpty())
+			return;
+
 		if (regionsFile == null) {
 			regionsFile = new File(this.worldGuardPath);
 		}
@@ -99,8 +110,8 @@ public class Regions implements Runnable {
 				z2 = Integer.MIN_VALUE;
 
 				String pointsRaw = regionsConfig.getString(name + ".points");
-				Pattern r = Pattern.compile("\\{(.*?)\\}");
-				Matcher m = r.matcher(pointsRaw);
+				r = Pattern.compile("\\{(.*?)\\}");
+				m = r.matcher(pointsRaw);
 
 				while (m.find()) {
 					String point = pointsRaw.substring(m.start(), m.end());
@@ -136,6 +147,7 @@ public class Regions implements Runnable {
 			this.regions.put(
 				name,
 				new RegionTrack(
+					world,
 					name,
 					new Location(null, x1, y1, z1),
 					new Location(null, x2, y2, z2)

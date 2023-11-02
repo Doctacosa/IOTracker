@@ -8,19 +8,21 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 
+import com.interordi.iotracker.structs.RegionTrack;
+
 public class PlayerTracking {
 	
 	private UUID uuid;
 	private Location location;
-	private Set< String > inRegions;
-	private Map< String, Integer > visits;
+	private Set< RegionTrack > inRegions;
+	private Map< RegionTrack, Integer > visits;
 	
 	
 	PlayerTracking(UUID uuid, Location location) {
 		this.uuid = uuid;
 		this.location = location;
-		this.inRegions = new HashSet< String >();
-		this.visits = new HashMap< String, Integer>();
+		this.inRegions = new HashSet< RegionTrack >();
+		this.visits = new HashMap< RegionTrack, Integer>();
 	}
 	
 	
@@ -39,42 +41,55 @@ public class PlayerTracking {
 	}
 	
 	
-	public Set< String > getRegionsActive() {
+	public Set< RegionTrack > getRegionsActive() {
 		return this.inRegions;
 	}
 	
 	
-	public Map< String, Integer > getVisits() {
+	public Map< RegionTrack, Integer > getVisits() {
 		return this.visits;
 	}
 	
 	
-	public void addRegion(String region) {
+	public void addRegion(RegionTrack region) {
 		inRegions.add(region);
 	}
 	
 	
-	public void removeRegion(String region) {
-		inRegions.remove(region);
+	public void addRegion(String world, String region) {
+		RegionTrack rt = new RegionTrack(world, region);
+		inRegions.add(rt);
 	}
 	
 	
-	public void visitRegion(String region) {
-		visitRegion(region, 1);
+	public void removeRegion(String world, String region) {
+		RegionTrack rt = new RegionTrack(world, region);
+		inRegions.remove(rt);
 	}
 	
 	
-	public void visitRegion(String region, Integer count) {
-		if (this.visits.containsKey(region)) {
-			Integer regionCount = this.visits.get(region);
-			this.visits.put(region, regionCount + count);
+	public void removeRegion(RegionTrack rt) {
+		inRegions.remove(rt);
+	}
+	
+	
+	public void visitRegion(String world, String region) {
+		visitRegion(world, region, 1);
+	}
+	
+	
+	public void visitRegion(String world, String region, Integer count) {
+		RegionTrack rt = new RegionTrack(world, region);
+		if (this.visits.containsKey(rt)) {
+			Integer regionCount = this.visits.get(rt);
+			this.visits.put(rt, regionCount + count);
 		} else {
-			this.visits.put(region, count);
+			this.visits.put(rt, count);
 		}
 	}
 	
 	
-	public void setRegionsActive(Set< String > regionsActive) {
+	public void setRegionsActive(Set< RegionTrack > regionsActive) {
 		this.inRegions = regionsActive;
 	}
 }

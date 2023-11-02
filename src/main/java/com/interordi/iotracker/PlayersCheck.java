@@ -50,6 +50,7 @@ public class PlayersCheck implements Runnable {
 			PlayerTracking tracks = this.players.get(playerUuid);
 			Location oldLocation = tracks.getLocation();
 			Location newLocation = oPlayer.getLocation();
+			String newWorld = oPlayer.getLocation().getWorld().getName();
 			
 			//If position didn't change...
 			if (oldLocation != null &&
@@ -73,8 +74,8 @@ public class PlayersCheck implements Runnable {
 			if (!found)
 				continue;
 			
-			Set< String > regionsActiveBefore = tracks.getRegionsActive();
-			Set< String > regionsToClear = new HashSet< String >(regionsActiveBefore);
+			Set< RegionTrack > regionsActiveBefore = tracks.getRegionsActive();
+			Set< RegionTrack > regionsToClear = new HashSet< RegionTrack >(regionsActiveBefore);
 			
 			//Check regions
 			for (Map.Entry< String, RegionTrack > entry : regions.entrySet()) {
@@ -89,24 +90,25 @@ public class PlayersCheck implements Runnable {
 					min.getBlockZ() <= newLocation.getBlockZ() && newLocation.getBlockZ() <= max.getBlockZ() &&
 					min.getBlockY() <= newLocation.getBlockY() && newLocation.getBlockY() <= max.getBlockY()) {
 					
-					regionsToClear.remove(regionName);
+					RegionTrack rt = new RegionTrack(regionData.getWorld(), regionData.getName());
+					regionsToClear.remove(rt);
 					
 					//In the region already, ignore
-					if (regionsActiveBefore.contains(regionName)) {
+					if (regionsActiveBefore.contains(rt)) {
 						continue;
 					}
 					
 					//Not in this region before, now active: add him
-					tracks.addRegion(regionName);
-					tracks.visitRegion(regionName);
+					tracks.addRegion(newWorld, regionName);
+					tracks.visitRegion(newWorld, regionName);
 				}
 			}
 			
 			//Remove the regions where the player is no longer active
-			Iterator< String > it = regionsToClear.iterator();
+			Iterator< RegionTrack > it = regionsToClear.iterator();
 			while (it.hasNext()) {
-				String regionName = it.next();
-				tracks.removeRegion(regionName);
+				RegionTrack rt = it.next();
+				tracks.removeRegion(rt);
 			}
 			
 			
@@ -139,15 +141,15 @@ public class PlayersCheck implements Runnable {
 	}
 	
 	
-	public void visitRegion(UUID uuid, String region, Integer nbVisits) {
+	public void visitRegion(UUID uuid, String world, String region, Integer nbVisits) {
 		if (!this.players.containsKey(uuid))	return;
 		
 		PlayerTracking pt = this.players.get(uuid);
-		pt.visitRegion(region, nbVisits);
+		pt.visitRegion(world, region, nbVisits);
 	}
 	
 	
-	public void setRegionsActive(UUID uuid, Set< String > regions) {
+	public void setRegionsActive(UUID uuid, Set< RegionTrack > regions) {
 		if (!this.players.containsKey(uuid))	return;
 		
 		PlayerTracking pt = this.players.get(uuid);
@@ -161,13 +163,13 @@ public class PlayersCheck implements Runnable {
 
 
 	//Get the amount of players in each specified region
-	public Set< UUID > getPlayersInRegion(String region) {
+	public Set< UUID > getPlayersInRegion(RegionTrack region) {
 
 		Set< UUID > inRegion = new HashSet< UUID >();
 
 		for (UUID uuid : players.keySet()) {
-			for (String regionCheck : players.get(uuid).getRegionsActive()) {
-				if (region.equalsIgnoreCase(regionCheck)) {
+			for (RegionTrack regionCheck : players.get(uuid).getRegionsActive()) {
+				if (region.equals(regionCheck)) {
 					inRegion.add(uuid);
 					break;
 				}
