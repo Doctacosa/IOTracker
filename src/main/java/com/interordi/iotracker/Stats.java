@@ -103,7 +103,7 @@ public class Stats implements Runnable {
 
 					//Loop on each visit for this player
 					for (String regionName : regions) {
-						Integer nbVisits = playerData.getInt(regionName);
+						Integer nbVisits = worldData.getInt(regionName);
 						plugin.visitRegion(uuid, world, regionName, nbVisits);
 					}
 				}
@@ -144,7 +144,7 @@ public class Stats implements Runnable {
 			File statsFile = new File(this.statsPath);
 			FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 
-			for (Map.Entry< UUID , PlayerTracking > entry : playersCopy.entrySet()) {
+			for (Map.Entry< UUID, PlayerTracking > entry : playersCopy.entrySet()) {
 				UUID uuid = entry.getKey();
 				PlayerTracking tracking = entry.getValue();
 				String world = tracking.getLocation().getWorld().getName();
@@ -152,7 +152,7 @@ public class Stats implements Runnable {
 				Map< RegionTrack, Integer > visits = new HashMap< RegionTrack, Integer>();
 				visits.putAll(tracking.getVisits());
 
-				for (Map.Entry< RegionTrack , Integer > visitEntry : visits.entrySet()) {
+				for (Map.Entry< RegionTrack, Integer > visitEntry : visits.entrySet()) {
 					String regionName = visitEntry.getKey().getName();
 					Integer nbVisits = visitEntry.getValue();
 
@@ -160,9 +160,9 @@ public class Stats implements Runnable {
 				}
 				
 				Set< RegionTrack > inRegions = tracking.getRegionsActive();
-				List< RegionTrack > inRegionsTemp = new ArrayList< RegionTrack >();
+				List< String > inRegionsTemp = new ArrayList< String >();
 				for (RegionTrack region : inRegions) {
-					inRegionsTemp.add(region);
+					inRegionsTemp.add(region.getName());
 				}
 				statsAccess.set("regionsactive." + uuid + "." + world, inRegionsTemp);
 			}
