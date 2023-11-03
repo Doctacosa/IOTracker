@@ -2,7 +2,6 @@ package com.interordi.iotracker;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -105,9 +104,7 @@ public class PlayersCheck implements Runnable {
 			}
 			
 			//Remove the regions where the player is no longer active
-			Iterator< RegionTrack > it = regionsToClear.iterator();
-			while (it.hasNext()) {
-				RegionTrack rt = it.next();
+			for (RegionTrack rt : regionsToClear) {
 				tracks.removeRegion(rt);
 			}
 			
@@ -115,10 +112,12 @@ public class PlayersCheck implements Runnable {
 			//Example code
 			//.distance() is expensive
 			//it's much better to use location.distanceSquared() and compare against the square of the wanted distance
-			//double ody = oPlayer.getLocation().distance(dPlayer);
-			//if(ody <= 15){
-			//oPlayer.sendMessage(ChatColor.RED + (ChatColor.ITALIC + "I hear someone nearby..."));
-			//}
+			/*
+			double ody = oPlayer.getLocation().distance(dPlayer);
+			if (ody <= 15) {
+				oPlayer.sendMessage(ChatColor.RED + (ChatColor.ITALIC + "I hear someone nearby..."));
+			}
+			*/
 		}
 	}
 	
@@ -175,7 +174,6 @@ public class PlayersCheck implements Runnable {
 				}
 			}
 		}
-
 
 		return inRegion;
 	}

@@ -136,7 +136,7 @@ public class Stats implements Runnable {
 		saving = true;
 
 		Map< UUID, PlayerTracking > players = this.plugin.getPlayers();
-		Map< UUID , PlayerTracking > playersCopy = new HashMap< UUID, PlayerTracking >();
+		Map< UUID, PlayerTracking > playersCopy = new HashMap< UUID, PlayerTracking >();
 		playersCopy.putAll(players);
 	
 		//Run on its own thread to avoid holding up the server
@@ -170,7 +170,6 @@ public class Stats implements Runnable {
 			try {
 				statsAccess.save(statsFile);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

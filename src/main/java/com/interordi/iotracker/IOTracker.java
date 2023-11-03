@@ -1,6 +1,5 @@
 package com.interordi.iotracker;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
