@@ -156,7 +156,7 @@ public class Stats implements Runnable {
 					String regionName = visitEntry.getKey().getName();
 					Integer nbVisits = visitEntry.getValue();
 
-					statsAccess.set("visits." + world + "." + uuid + "." + regionName, nbVisits);
+					statsAccess.set("visits." + uuid + "." + world + "." + regionName, nbVisits);
 				}
 				
 				Set< RegionTrack > inRegions = tracking.getRegionsActive();
@@ -164,7 +164,7 @@ public class Stats implements Runnable {
 				for (RegionTrack region : inRegions) {
 					inRegionsTemp.add(region);
 				}
-				statsAccess.set("regionsactive." + world + "." + uuid, inRegionsTemp);
+				statsAccess.set("regionsactive." + uuid + "." + world, inRegionsTemp);
 			}
 			
 			try {
