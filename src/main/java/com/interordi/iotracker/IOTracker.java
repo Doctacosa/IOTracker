@@ -41,23 +41,26 @@ public final class IOTracker extends JavaPlugin {
 			return;
 		}
 
+		this.regionsManager = new Regions(this, worldGuardPath, worlds);
+
 
 		ConfigurationSection regionsCS = this.getConfig().getConfigurationSection("regions-query");
 		if (regionsCS != null) {
 			
-			Set< String > cs = regionsCS.getKeys(false);
-			if (cs != null) {
-				for (String name : cs) {
-					String world = name.split(".")[0];
-					String id = name.split(".")[1];
-					this.regionsManager.addRegionsQuery(
-						new RegionQuery(
-							id,
-							world,
-							regionsCS.getString(name + ".display"),
-							regionsCS.getString(name + ".warning")
-						)
-					);
+			for (String world : regionsCS.getKeys(false)) {
+				ConfigurationSection regionsWorld = regionsCS.getConfigurationSection(world);
+
+				if (regionsWorld != null) {
+					for (String region : regionsWorld.getKeys(false)) {
+						this.regionsManager.addRegionsQuery(
+							new RegionQuery(
+								world,
+								region,
+								regionsWorld.getString(region + ".display"),
+								regionsWorld.getString(region + ".warning")
+							)
+						);
+					}
 				}
 			}
 		}
@@ -66,7 +69,6 @@ public final class IOTracker extends JavaPlugin {
 		new LoginListener(this);
 		
 		//Get the list of available regions
-		this.regionsManager = new Regions(this, worldGuardPath, worlds);
 		this.regionsManager.readAll();
 		
 		this.playersCheck = new PlayersCheck(this);
@@ -113,7 +115,7 @@ public final class IOTracker extends JavaPlugin {
 
 			sender.sendMessage(ChatColor.BOLD + "Player activity by area:");
 			for (RegionQuery region : this.regionsManager.getRegionsQuery()) {
-				RegionTrack rt = new RegionTrack(region.world, region.id);
+				RegionTrack rt = new RegionTrack(region.world, region.region);
 				int nbPlayers = this.playersCheck.getPlayersInRegion(rt).size();
 				
 				ChatColor status = ChatColor.GRAY;
