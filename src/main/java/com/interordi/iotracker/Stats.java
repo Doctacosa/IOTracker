@@ -35,6 +35,7 @@ public class Stats implements Runnable {
 	}
 	
 	
+	//NOTE: Currently unused, the data is read player-by-player
 	public void loadStats() {
 		File statsFile = new File(this.statsPath);
 
@@ -61,7 +62,7 @@ public class Stats implements Runnable {
 		for (String player : players) {
 			Set< String > worlds = visitsData.getConfigurationSection(player).getKeys(false);
 			if (worlds != null && !worlds.isEmpty()) {
-				for (String world: worlds) {
+				for (String world : worlds) {
 					UUID uuid = UUID.fromString(player);
 					ConfigurationSection playerData = visitsData.getConfigurationSection(uuid.toString());
 					
@@ -135,24 +136,23 @@ public class Stats implements Runnable {
 
 		saving = true;
 
-		Map< UUID, PlayerTracking > players = this.plugin.getPlayers();
-		Map< UUID, PlayerTracking > playersCopy = new HashMap< UUID, PlayerTracking >();
-		playersCopy.putAll(players);
+		//Work off a copy of the list
+		Map< UUID, PlayerTracking > players = new HashMap< UUID, PlayerTracking >(this.plugin.getPlayers());
 	
 		//Run on its own thread to avoid holding up the server
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			File statsFile = new File(this.statsPath);
 			FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 
-			for (Map.Entry< UUID, PlayerTracking > entry : playersCopy.entrySet()) {
+			for (Map.Entry< UUID, PlayerTracking > entry : players.entrySet()) {
 				UUID uuid = entry.getKey();
 				PlayerTracking tracking = entry.getValue();
-				String world = tracking.getLocation().getWorld().getName();
 				
 				Map< RegionTrack, Integer > visits = new HashMap< RegionTrack, Integer>();
 				visits.putAll(tracking.getVisits());
 
 				for (Map.Entry< RegionTrack, Integer > visitEntry : visits.entrySet()) {
+					String world = visitEntry.getKey().getWorld();
 					String regionName = visitEntry.getKey().getName();
 					Integer nbVisits = visitEntry.getValue();
 
@@ -160,11 +160,19 @@ public class Stats implements Runnable {
 				}
 				
 				Set< RegionTrack > inRegions = tracking.getRegionsActive();
-				List< String > inRegionsTemp = new ArrayList< String >();
+				//Restructure in a < world, regions > map
+				Map< String, Set< String > > inRegionsTemp = new HashMap< String, Set< String > >();
 				for (RegionTrack region : inRegions) {
-					inRegionsTemp.add(region.getName());
+					if (!inRegionsTemp.containsKey(region.getWorld()))
+						inRegionsTemp.put(region.getWorld(), new HashSet< String >());
+					Set< String > regions = inRegionsTemp.get(region.getWorld());
+					regions.add(region.getName());
+					inRegionsTemp.put(region.getWorld(), regions);
 				}
-				statsAccess.set("regionsactive." + uuid + "." + world, inRegionsTemp);
+				//Save
+				for (Map.Entry< String, Set< String > > activeEntry : inRegionsTemp.entrySet()) {
+					statsAccess.set("regionsactive." + uuid + "." + activeEntry.getKey(), activeEntry.getValue().toArray());
+				}
 			}
 			
 			try {

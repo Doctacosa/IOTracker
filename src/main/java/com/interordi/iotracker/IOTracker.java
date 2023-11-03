@@ -75,8 +75,8 @@ public final class IOTracker extends JavaPlugin {
 		this.stats = new Stats(this);
 		
 		
-		//Read the current stats
-		this.stats.loadStats();
+		//UNUSED - Read the current stats
+		//this.stats.loadStats();
 		
 		//Once the server is running, check for player positions every second
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, playersCheck, 5*20L, 1*20L);
