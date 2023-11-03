@@ -64,7 +64,7 @@ public class PlayerTracking {
 	
 	public void removeRegion(String world, String region) {
 		RegionTrack rt = new RegionTrack(world, region);
-		inRegions.remove(rt);
+		this.removeRegion(rt);
 	}
 	
 	
@@ -81,9 +81,11 @@ public class PlayerTracking {
 	public void visitRegion(String world, String region, Integer count) {
 		RegionTrack rt = new RegionTrack(world, region);
 		if (this.visits.containsKey(rt)) {
+			//Increment an existing visit
 			Integer regionCount = this.visits.get(rt);
 			this.visits.put(rt, regionCount + count);
 		} else {
+			//Add a new visit
 			this.visits.put(rt, count);
 		}
 	}

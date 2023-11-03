@@ -88,13 +88,12 @@ public class PlayersCheck implements Runnable {
 				if (min.getBlockX() <= newLocation.getBlockX() && newLocation.getBlockX() <= max.getBlockX() &&
 					min.getBlockZ() <= newLocation.getBlockZ() && newLocation.getBlockZ() <= max.getBlockZ() &&
 					min.getBlockY() <= newLocation.getBlockY() && newLocation.getBlockY() <= max.getBlockY() &&
-					newLocation.getWorld().getName().equals(regionData.getWorld())) {
-					
-					RegionTrack rt = new RegionTrack(regionData.getWorld(), regionData.getName());
-					regionsToClear.remove(rt);
+					newWorld.equals(regionData.getWorld())) {
+
+					regionsToClear.remove(regionData);
 					
 					//In the region already, ignore
-					if (regionsActiveBefore.contains(rt)) {
+					if (regionsActiveBefore.contains(regionData)) {
 						continue;
 					}
 					
