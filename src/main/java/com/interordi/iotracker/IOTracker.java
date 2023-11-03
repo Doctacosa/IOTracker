@@ -33,21 +33,14 @@ public final class IOTracker extends JavaPlugin {
 		this.saveDefaultConfig();
 
 		//Get the location of the WorldGuard file
-		worldGuardPath = this.getConfig().getString("regions-file");
-
-		if (worldGuardPath == null) {
-			getLogger().info("No regions file defined, no checks will be done.");
-			return;
-		}
-
-		File source = new File(worldGuardPath);
-		if (!source.exists()) {
-			getLogger().info("Regions file not found, no checks will be done.");
-			return;
-		}
-
+		worldGuardPath = this.getConfig().getString("worldguard-path", "plugins/WorldGuard/");
 
 		worlds = this.getConfig().getString("worlds", "").split(",");
+
+		if (worlds.length == 0) {
+			getLogger().info("No world specified, no checks will be done.");
+			return;
+		}
 
 
 		ConfigurationSection regionsCS = this.getConfig().getConfigurationSection("regions-query");
@@ -74,7 +67,7 @@ public final class IOTracker extends JavaPlugin {
 		new LoginListener(this);
 		
 		//Get the list of available regions
-		this.regionsManager = new Regions(this, worldGuardPath);
+		this.regionsManager = new Regions(this, worldGuardPath, worlds);
 		this.regionsManager.readAll();
 		
 		this.playersCheck = new PlayersCheck(this);
