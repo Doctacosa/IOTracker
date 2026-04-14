@@ -34,7 +34,7 @@ public class PlayersCheck implements Runnable {
 		
 		//Get the list of regions
 		//Not storing this locally to get an updated list
-		regions = this.plugin.getRegions();
+		regions = this.plugin.getRegionsTrack();
 		
 		//Get the list of online players
 		for (Player oPlayer : Bukkit.getOnlinePlayers()) {

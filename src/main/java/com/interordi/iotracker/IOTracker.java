@@ -18,11 +18,13 @@ import net.md_5.bungee.api.ChatColor;
 
 public final class IOTracker extends JavaPlugin {
 	
-	private Regions regionsManager;
+	private Regions regionsManagerTrack;
+	private Regions regionsManagerCheck;
 	private PlayersCheck playersCheck;
 	private Stats stats;
 
-	private String worldGuardPath = "";
+	private String worldGuardTrack = "";
+	private String worldGuardCheck = "";
 	public String[] worlds;
 	
 
@@ -32,7 +34,8 @@ public final class IOTracker extends JavaPlugin {
 		this.saveDefaultConfig();
 
 		//Get the location of the WorldGuard file
-		worldGuardPath = this.getConfig().getString("worldguard-path", "plugins/WorldGuard/");
+		worldGuardTrack = this.getConfig().getString("worldguard-path", "plugins/WorldGuard/");
+		worldGuardCheck = this.getConfig().getString("worldguard-check", null);
 
 		worlds = this.getConfig().getString("worlds", "").split(",");
 
@@ -41,7 +44,11 @@ public final class IOTracker extends JavaPlugin {
 			return;
 		}
 
-		this.regionsManager = new Regions(this, worldGuardPath, worlds);
+		this.regionsManagerTrack = new Regions(this, worldGuardTrack, worlds);
+		if (worldGuardCheck != null)
+			this.regionsManagerCheck = new Regions(this, worldGuardCheck, worlds);
+		else
+			this.regionsManagerCheck = this.regionsManagerTrack;
 
 
 		ConfigurationSection regionsCS = this.getConfig().getConfigurationSection("regions-query");
@@ -52,7 +59,7 @@ public final class IOTracker extends JavaPlugin {
 
 				if (regionsWorld != null) {
 					for (String region : regionsWorld.getKeys(false)) {
-						this.regionsManager.addRegionsQuery(
+						this.regionsManagerCheck.addRegionsQuery(
 							new RegionQuery(
 								world,
 								region,
@@ -69,7 +76,9 @@ public final class IOTracker extends JavaPlugin {
 		new LoginListener(this);
 		
 		//Get the list of available regions
-		this.regionsManager.readAll();
+		this.regionsManagerTrack.readAll();
+		if (this.regionsManagerTrack != this.regionsManagerCheck)
+			this.regionsManagerCheck.readAll();
 		
 		this.playersCheck = new PlayersCheck(this);
 		this.stats = new Stats(this);
@@ -86,7 +95,7 @@ public final class IOTracker extends JavaPlugin {
 		
 		//Update the list of regions every hour
 		//FIXME: Regions don't actually get updated
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, regionsManager, 30*60*20L, 60*60*20L);
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, regionsManagerTrack, 30*60*20L, 60*60*20L);
 
 		getLogger().info("IOTracker enabled");
 	}
@@ -108,13 +117,13 @@ public final class IOTracker extends JavaPlugin {
 				return true;
 			}
 
-			if (this.regionsManager == null || this.regionsManager.getRegionsQuery().isEmpty()) {
+			if (this.regionsManagerCheck == null || this.regionsManagerCheck.getRegionsQuery().isEmpty()) {
 				sender.sendMessage(ChatColor.RED + "No regions are available.");
 				return true;
 			}
 
 			sender.sendMessage(ChatColor.BOLD + "Player activity by area:");
-			for (RegionQuery region : this.regionsManager.getRegionsQuery()) {
+			for (RegionQuery region : this.regionsManagerCheck.getRegionsQuery()) {
 				RegionTrack rt = new RegionTrack(region.world, region.region);
 				int nbPlayers = this.playersCheck.getPlayersInRegion(rt).size();
 				
@@ -128,16 +137,16 @@ public final class IOTracker extends JavaPlugin {
 				} else if (region.warningType.equalsIgnoreCase("busy")) {
 					if (nbPlayers == 0)
 						status = ChatColor.GREEN;
-						else
-					status = ChatColor.RED;
+					else
+						status = ChatColor.RED;
 				}
 
 				String playersLabel;
 				if (nbPlayers >= 2)
 					playersLabel = nbPlayers + " players";
-					else if (nbPlayers == 1)
+				else if (nbPlayers == 1)
 					playersLabel = nbPlayers + " player";
-					else
+				else
 					playersLabel = "Empty";
 
 				sender.sendMessage(ChatColor.BOLD + region.displayName + ": " + ChatColor.RESET + status + playersLabel);
@@ -164,8 +173,8 @@ public final class IOTracker extends JavaPlugin {
 	}
 	
 	
-	public Map< String, RegionTrack > getRegions() {
-		return this.regionsManager.getRegions();
+	public Map< String, RegionTrack > getRegionsTrack() {
+		return this.regionsManagerTrack.getRegions();
 	}
 	
 	
