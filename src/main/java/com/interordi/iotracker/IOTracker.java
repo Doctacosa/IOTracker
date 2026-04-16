@@ -25,6 +25,7 @@ public final class IOTracker extends JavaPlugin {
 
 	private String worldGuardTrack = "";
 	private String worldGuardCheck = "";
+	private String statsFileCheck = "";
 	public String[] worlds;
 	
 
@@ -36,6 +37,7 @@ public final class IOTracker extends JavaPlugin {
 		//Get the location of the WorldGuard file
 		worldGuardTrack = this.getConfig().getString("worldguard-path", "plugins/WorldGuard/");
 		worldGuardCheck = this.getConfig().getString("worldguard-check", null);
+		statsFileCheck = this.getConfig().getString("stats-check", null);
 
 		worlds = this.getConfig().getString("worlds", "").split(",");
 
@@ -81,7 +83,7 @@ public final class IOTracker extends JavaPlugin {
 			this.regionsManagerCheck.readAll();
 		
 		this.playersCheck = new PlayersCheck(this);
-		this.stats = new Stats(this);
+		this.stats = new Stats(this, statsFileCheck);
 		
 		
 		//UNUSED - Read the current stats
@@ -122,10 +124,16 @@ public final class IOTracker extends JavaPlugin {
 				return true;
 			}
 
+			this.stats.loadRegionsActiveFromFile();
+
 			sender.sendMessage(ChatColor.BOLD + "Player activity by area:");
 			for (RegionQuery region : this.regionsManagerCheck.getRegionsQuery()) {
 				RegionTrack rt = new RegionTrack(region.world, region.region);
-				int nbPlayers = this.playersCheck.getPlayersInRegion(rt).size();
+
+				Set< UUID > inRegion = this.stats.getPlayersActiveInRegion(rt);
+				int nbPlayers = 0;
+				if (inRegion != null)
+					nbPlayers = inRegion.size();
 				
 				ChatColor status = ChatColor.GRAY;
 				if (region.warningType.equalsIgnoreCase("empty")) {

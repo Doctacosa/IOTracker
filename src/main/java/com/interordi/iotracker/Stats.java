@@ -2,7 +2,6 @@ package com.interordi.iotracker;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,13 +18,23 @@ import com.interordi.iotracker.structs.RegionTrack;
 
 public class Stats implements Runnable {
 	
-	IOTracker plugin;
+	private IOTracker plugin;
 	private boolean saving = false;
-	private String statsPath = "plugins/IOTracker/stats.yml";
+	private String statsTrackPath = "plugins/IOTracker/stats.yml";
+	private String statsCheckPath = "plugins/IOTracker/stats.yml";
+
+	private Map< RegionTrack, Set< UUID > > regionsActiveInFile;
 	
 	
-	Stats(IOTracker plugin) {
+	public Stats(IOTracker plugin, String statsFileCheck) {
 		this.plugin = plugin;
+		if (statsFileCheck != null && !statsFileCheck.isEmpty()) {
+			if (!statsFileCheck.endsWith("stats.yml"))
+				statsFileCheck += "stats.yml";
+			this.statsCheckPath = statsFileCheck;
+		}
+
+		regionsActiveInFile = new HashMap< RegionTrack, Set< UUID > >();
 	}
 
 	
@@ -37,7 +46,7 @@ public class Stats implements Runnable {
 	
 	//NOTE: Currently unused, the data is read player-by-player
 	public void loadStats() {
-		File statsFile = new File(this.statsPath);
+		File statsFile = new File(this.statsTrackPath);
 
 		try {
 			if (!statsFile.exists())
@@ -65,7 +74,7 @@ public class Stats implements Runnable {
 				for (String world : worlds) {
 					UUID uuid = UUID.fromString(player);
 					ConfigurationSection playerData = visitsData.getConfigurationSection(uuid.toString());
-					
+
 					Set< String > rs = playerData.getKeys(false);
 					
 					//Loop on each visit for this player
@@ -84,7 +93,7 @@ public class Stats implements Runnable {
 		Bukkit.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
 			@Override
 			public void run() {
-				File statsFile = new File(statsPath);
+				File statsFile = new File(statsTrackPath);
 				FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 				
 				ConfigurationSection playerData = statsAccess.getConfigurationSection("visits." + uuid);
@@ -141,7 +150,7 @@ public class Stats implements Runnable {
 	
 		//Run on its own thread to avoid holding up the server
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			File statsFile = new File(this.statsPath);
+			File statsFile = new File(this.statsTrackPath);
 			FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
 
 			for (Map.Entry< UUID, PlayerTracking > entry : players.entrySet()) {
@@ -183,5 +192,65 @@ public class Stats implements Runnable {
 
 			saving = false;
 		});
+	}
+
+
+	//Get the players in a region from the stats file
+	@SuppressWarnings("unchecked")
+	public void loadRegionsActiveFromFile() {
+
+		regionsActiveInFile = new HashMap< RegionTrack, Set< UUID > >();
+		File statsFile = new File(this.statsCheckPath);
+
+		try {
+			if (!statsFile.exists())
+				statsFile.createNewFile();
+		} catch (IOException e) {
+			System.err.println("Failed to load the stats file");
+			e.printStackTrace();
+			return;
+		}
+
+		FileConfiguration statsAccess = YamlConfiguration.loadConfiguration(statsFile);
+		
+		ConfigurationSection visitsData = statsAccess.getConfigurationSection("regionsactive");
+		if (visitsData == null)
+			return;	//Nothing yet, exit
+		Set< String > players = visitsData.getKeys(false);
+		if (players == null)
+			return;	//No players found, exit
+		
+		
+		//Loop on each player
+		for (String player : players) {
+			if (visitsData.getConfigurationSection(player) == null)
+				continue;
+
+			ConfigurationSection playerData = visitsData.getConfigurationSection(player);
+
+			Set< String > worlds = playerData.getKeys(false);
+			if (worlds != null && !worlds.isEmpty()) {
+				UUID uuid = UUID.fromString(player);
+				for (String world : worlds) {
+
+					//Loop on each active region for this player
+					for (String regionName : (List<String>) playerData.getList(world)) {
+						RegionTrack rt = new RegionTrack(world, regionName);
+						if (!regionsActiveInFile.containsKey(rt))
+							regionsActiveInFile.put(rt, new HashSet< UUID >());
+
+						regionsActiveInFile.get(rt).add(uuid);
+					}
+				}
+			}
+		}
+	}
+
+
+	//Get the list of players active in the given region, if any
+	public Set< UUID > getPlayersActiveInRegion(RegionTrack rt) {
+		if (regionsActiveInFile.containsKey(rt))
+			return regionsActiveInFile.get(rt);
+		return null;
 	}
 }
