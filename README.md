@@ -35,11 +35,26 @@ A player using `/anyone` will get a report on the status of each defined region.
 * The one named "beds" will be highlighted in green if empty, meaning that it's available; and red if currently occupied.
 * The one named "lookout" is the opposite: red if empty (no one is keeping watch), while green if someone is in position.
 
+By default, the command will check for players active in the regions of the server running the plugin. You can instead configure it to check for another server accessible on the same file system with the parameters `worldguard-check` (where the regions are defined) and `stats-check` (the file with the recorded visits). For example, your config file could look like this:
+```
+worldguard-path: plugins/WorldGuard/
+worldguard-check: ../server-other/plugins/WorldGuard/
+stats-check: ../server-other/plugins/IOTracker/stats.yml
+worlds: world_local,world_local_nether,world_local_the_end
+regions-query:
+  world_other:
+    sora-monument:
+      display: Halls of Nyx
+      warning: busy
+```
+
 
 ## Configuration
 
 `worldguard-path`: The path to WorldGuard, if not the standard. Defaults to `plugins/WorldGuard/`.  
-`worlds`: The worlds to check for activity; comma-separated list.  
+`worldguard-check`: The path to WorldGuard of another server, if wanted. Defauls to the value of `worldguard-path`.  
+`stats-check`: Optional. The file to examine for the `/anyone` command, if not the one for this server.  
+`worlds`: The worlds to monitor for activity; comma-separated list.  
 `regions-query`: Which regions should be included in the `/anyone` command. Explained above.  
 
 
